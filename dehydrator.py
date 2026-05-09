@@ -196,6 +196,8 @@ class Dehydrator:
     def _init_cache_db(self):
         """Create dehydration cache table if not exists."""
         os.makedirs(os.path.dirname(self.cache_db_path), exist_ok=True)
+        if os.path.exists(self.cache_db_path):
+            os.remove(self.cache_db_path)
         conn = sqlite3.connect(self.cache_db_path)
         conn.execute("""
             CREATE TABLE IF NOT EXISTS dehydration_cache (
@@ -373,7 +375,7 @@ class Dehydrator:
                 arousal = float(metadata.get("arousal", 0.3))
             except (ValueError, TypeError):
                 valence, arousal = 0.5, 0.3
-            header = f"📌 记忆桶: {name}"
+            header = f"[{name}]"
             if domains:
                 header += f" [主题:{domains}]"
             header += f" [情感:V{valence:.1f}/A{arousal:.1f}]"
