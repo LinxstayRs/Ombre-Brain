@@ -798,10 +798,17 @@ async def hold(
 
     # --- Feel mode: store as feel type, minimal metadata ---
     # --- Feel 模式：存为 feel 类型，最少元数据 ---
-    if feel:
+        if feel:
         # Feel valence/arousal = model's own perspective
         feel_valence = valence if 0 <= valence <= 1 else 0.5
         feel_arousal = arousal if 0 <= arousal <= 1 else 0.3
+        # --- Generate feel name ---
+        feel_name = None
+        try:
+            feel_name = await dehydrator.generate_feel_name(content)
+        except Exception as e:
+            logger.warning(f"Feel name generation failed: {e}")
+            feel_name = content[:15].replace("\n", " ").strip()
         bucket_id = await bucket_mgr.create(
             content=content,
             tags=[],
@@ -809,7 +816,7 @@ async def hold(
             domain=[],
             valence=feel_valence,
             arousal=feel_arousal,
-            name=None,
+            name=feel_name,
             bucket_type="feel",
         )
         try:
