@@ -197,8 +197,6 @@ class Dehydrator:
         # --- SQLite dehydration cache ---
         # --- SQLite 脱水缓存：content hash → summary ---
         db_path = os.path.join(config["buckets_dir"], "dehydration_cache.db")
-        if os.path.exists(self.cache_db_path):
-            os.remove(self.cache_db_path)
         self.cache_db_path = db_path
         self._init_cache_db()
 
