@@ -197,8 +197,6 @@ class Dehydrator:
     def _init_cache_db(self):
         """Create dehydration cache table if not exists."""
         os.makedirs(os.path.dirname(self.cache_db_path), exist_ok=True)
-        if os.path.exists(self.cache_db_path):
-            os.remove(self.cache_db_path)
         conn = sqlite3.connect(self.cache_db_path)
         conn.execute("""
             CREATE TABLE IF NOT EXISTS dehydration_cache (
