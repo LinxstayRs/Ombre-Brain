@@ -796,44 +796,44 @@ async def hold(
     importance = max(1, min(10, importance))
     extra_tags = [t.strip() for t in tags.split(",") if t.strip()]
 
-    # --- Feel mode: store as feel type, minimal metadata ---
-    # --- Feel 模式：存为 feel 类型，最少元数据 ---
+        # --- Feel mode: store as feel type, minimal metadata ---
+        # --- Feel 模式: 存为 feel 类型, 最少元数据 ---
         if feel:
-        # Feel valence/arousal = model's own perspective
-        feel_valence = valence if 0 <= valence <= 1 else 0.5
-        feel_arousal = arousal if 0 <= arousal <= 1 else 0.3
-        # --- Generate feel name ---
-        feel_name = None
-        try:
-            feel_name = await dehydrator.generate_feel_name(content)
-        except Exception as e:
-            logger.warning(f"Feel name generation failed: {e}")
-            feel_name = content[:15].replace("\n", " ").strip()
-        bucket_id = await bucket_mgr.create(
-            content=content,
-            tags=[],
-            importance=5,
-            domain=[],
-            valence=feel_valence,
-            arousal=feel_arousal,
-            name=feel_name,
-            bucket_type="feel",
-        )
-        try:
-            await embedding_engine.generate_and_store(bucket_id, content)
-        except Exception:
-            pass
-        # --- Mark source memory as digested + store model's valence perspective ---
-        # --- 标记源记忆为已消化 + 存储模型视角的 valence ---
-        if source_bucket and source_bucket.strip():
+            # Feel valence/arousal = model's own perspective
+            feel_valence = valence if 0 <= valence <= 1 else 0.5
+            feel_arousal = arousal if 0 <= arousal <= 1 else 0.3
+            # --- Generate feel name ---
+            feel_name = None
             try:
-                update_kwargs = {"digested": True}
-                if 0 <= valence <= 1:
-                    update_kwargs["model_valence"] = feel_valence
-                await bucket_mgr.update(source_bucket.strip(), **update_kwargs)
+                feel_name = await dehydrator.generate_feel_name(content)
             except Exception as e:
-                logger.warning(f"Failed to mark source as digested / 标记已消化失败: {e}")
-        return f"🫧feel→{bucket_id}"
+                logger.warning(f"Feel name generation failed: {e}")
+                feel_name = content[:15].replace("\n", " ").strip()
+            bucket_id = await bucket_mgr.create(
+                content=content,
+                tags=[],
+                importance=5,
+                domain=[],
+                valence=feel_valence,
+                arousal=feel_arousal,
+                name=feel_name,
+                bucket_type="feel",
+            )
+            try:
+                await embedding_engine.generate_and_store(bucket_id, content)
+            except Exception:
+                pass
+            # --- Mark source memory as digested + store model's valence perspective ---
+            # --- 标记源记忆为已消化 + 存储模型视角的 valence ---
+            if source_bucket and source_bucket.strip():
+                try:
+                    update_kwargs = {"digested": True}
+                    if 0 <= valence <= 1:
+                        update_kwargs["model_valence"] = feel_valence
+                    await bucket_mgr.update(source_bucket.strip(), **update_kwargs)
+                except Exception as e:
+                    logger.warning(f"Failed to mark source as digested: {e}")
+            return f"🫧feel→{bucket_id}"
 
     # --- Step 1: auto-tagging / 自动打标 ---
     try:
