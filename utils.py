@@ -226,7 +226,9 @@ def count_tokens_approx(text: str) -> int:
 
 def now_iso() -> str:
     """
-    Return current time as ISO format string.
-    返回当前时间的 ISO 格式字符串。
+    Return current time as ISO format string in Asia/Shanghai timezone.
+    返回当前时间的 ISO 格式字符串（东八区）。
     """
-    return datetime.now().isoformat(timespec="seconds")
+    from datetime import timezone, timedelta
+    cst = timezone(timedelta(hours=8))
+    return datetime.now(cst).isoformat(timespec="seconds")
